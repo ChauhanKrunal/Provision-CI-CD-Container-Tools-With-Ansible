@@ -1,0 +1,38 @@
+# To provision and install docker and start container.
+-
+  name: Install Kubernetes Cluster
+  hosts: webserver1
+  become: true
+  tasks:
+    - name: Get Latest Repository Details
+      command: sudo apt-get update -y
+
+    - name: Update Repository
+      command: sudo apt-get upgrade -y
+
+    - name: Install apt-transport-https
+      apt:
+        name: apt-transport-https
+        state: present
+
+    - name: Install Virtualbox Hypervisor
+      apt:
+        name : "{{item}}"
+      loop:
+        - virtualbox
+        - virtualbox-ext-pack
+
+    - name: Download Minikube
+      get_url:
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        dest: /usr/local/bin/minikube
+        mode: '755'
+
+    - name: Download Kubectl
+      get_url:
+        url: https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: '777'
+
+    - name: Start Minikube Service
+      command: minikube start

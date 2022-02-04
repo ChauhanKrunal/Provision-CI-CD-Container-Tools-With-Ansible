@@ -1,0 +1,39 @@
+# To provision and install docker and start container.
+-
+  name: Install Docker
+  hosts: webserver1
+  become: true
+  vars:
+    docker_image_name: 'hello-world'
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Start Docker Service
+      service:
+        name: docker
+        state: started
+
+    - name: Install Python3 pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install docker python module
+      pip:
+        name: docker
+
+    - name: Pull default Docker image
+      docker_image:
+        name: "{{ docker_image_name }}"
+        source: pull
+
+    - name: Create container
+      docker_container:
+        name: hello-world
+        image: hello-world
+        state: absent
+        recreate: yes
+

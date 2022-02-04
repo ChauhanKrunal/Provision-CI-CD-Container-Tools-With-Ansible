@@ -1,0 +1,46 @@
+# To provision and install docker and start container.
+-
+  name: Install Jenkins
+  hosts: webserver1
+  become: true
+  vars:
+    package: 'jenkins'
+  tasks:
+    - name: Install JDK
+      apt:
+        name: openjdk-8-jdk
+
+    - name: Download Jenkins From Repo
+      apt_key:
+        url: 'https://pkg.jenkins.io/debian-stable/jenkins.io.key'
+        state: present
+
+    - name: Ensure Jenkins Repo Is Configured
+      apt_repository:
+        repo: 'deb https://pkg.jenkins.io/debian-stable binary/'
+        state: present
+
+    - name: Install Jenkins
+      apt:
+        name: '{{package}}'
+        state: present
+
+    - name: Start Jenkins
+      service:
+        name: '{{package}}'
+        enabled: true
+        state: started
+
+    - name: Ensure jenkins service added to firewalld
+      firewalld:
+        service: jenkins
+        state: enabled
+        permanent: yes
+        immediate: yes
+
+    - name: Ensure port 8080 added to firewalld
+      firewalld:
+        port: 8080/tcp
+        state: enabled
+        permanent: yes
+        immediate: yes
